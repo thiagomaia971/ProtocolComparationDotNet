@@ -1,44 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ServiceModel;
-using ProtocolComparationDotNet.Domain;
-using ProtocolComparationDotNet.Domain.InputModel;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
+using ProtocolComparationDotNet.Domain.Entities;
 
 namespace ProtocolComparationDotNet.Client
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var binding = new BasicHttpBinding();
-            var endpoint = new EndpointAddress(new Uri(string.Format("http://{0}:5050/Service.svc", Environment.MachineName)));
-            var channelFactory = new ChannelFactory<ISampleService>(binding, endpoint);
-            var serviceClient = channelFactory.CreateChannel();
-            var result = serviceClient.Ping("hey");
-            Console.WriteLine("Ping method result: {0}", result);
-
-            var complexModel = new ComplexInputModel
+            using (var client = new HttpClient())
             {
-                StringProperty = Guid.NewGuid().ToString(),
-                IntProperty = int.MaxValue / 2,
-                ListProperty = new List<string> { "test", "list", "of", "strings" },
-                DateTimeOffsetProperty = new DateTimeOffset(2018, 12, 31, 13, 59, 59, TimeSpan.FromHours(1))
-            };
-
-            var complexResult = serviceClient.PingComplexModel(complexModel);
-            Console.WriteLine("PingComplexModel result. FloatProperty: {0}, StringProperty: {1}, ListProperty: {2}, DateTimeOffsetProperty: {3}, EnumProperty: {4}",
-                complexResult.FloatProperty, complexResult.StringProperty, string.Join(", ", complexResult.ListProperty), complexResult.DateTimeOffsetProperty, complexResult.TestEnum);
-
-            serviceClient.VoidMethod(out var stringValue);
-            Console.WriteLine("Void method result: {0}", stringValue);
-
-            var asyncMethodResult = serviceClient.AsyncMethod().Result;
-            Console.WriteLine("Async method result: {0}", asyncMethodResult);
-
-            var xmlelement = System.Xml.Linq.XElement.Parse("<test>string</test>");
-            serviceClient.XmlMethod(xmlelement);
-
+                client.BaseAddress = new Uri("https://localhost:5001");
+                var vendas = await GetVendas(client);
+                foreach (var venda in vendas)
+                {
+                    var produtos = await GetProdutos(client, venda.Id);
+                }
+            }
             Console.ReadKey();
+        }
+
+        private static async Task<IEnumerable<Venda>> GetVendas(HttpClient client)
+            => await Get<IEnumerable<Venda>>(client, "api/venda");
+
+        private static async Task<IEnumerable<Produto>> GetProdutos(HttpClient client, int id)
+            => await Get<IEnumerable<Produto>>(client, $"api/venda/{id}/produtos");
+
+        private static async Task<T> Get<T>(HttpClient client, string url)
+        {
+            var httpResponseMessage = await client.GetAsync(url);
+            var task = await httpResponseMessage.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<T>(task);
         }
     }
 }

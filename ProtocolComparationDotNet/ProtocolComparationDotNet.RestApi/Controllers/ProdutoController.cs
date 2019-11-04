@@ -14,6 +14,7 @@ namespace ProtocolComparationDotNet.RestApi.Controllers
         public ProdutoController(ProdutoRepository produtoRepository) 
             => this.produtoRepository = produtoRepository;
 
+        [HttpGet, Route("")]
         public IEnumerable<Produto> Produtos() 
             => produtoRepository.Get();
     }

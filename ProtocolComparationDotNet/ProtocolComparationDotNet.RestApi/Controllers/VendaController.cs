@@ -14,7 +14,12 @@ namespace ProtocolComparationDotNet.RestApi.Controllers
         public VendaController(VendaRepository vendaRepository) 
             => this.vendaRepository = vendaRepository;
 
-        public IEnumerable<Venda> Vendas() 
+        [HttpGet, Route("")]
+        public IEnumerable<Venda> Vendas()
             => vendaRepository.Get();
+
+        [HttpGet, Route("{vendaId}/produtos")]
+        public IEnumerable<Produto> Produtos(int vendaId)
+            => vendaRepository.Produtos(vendaId);
     }
 }
