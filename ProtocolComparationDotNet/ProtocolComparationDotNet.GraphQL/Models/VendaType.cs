@@ -1,5 +1,9 @@
-﻿using GraphQL.Types;
+﻿using System.Collections.Generic;
+using System.Linq;
+using GraphQL.Types;
 using ProtocolComparationDotNet.Domain.Entities;
+using ProtocolComparationDotNet.Domain.Repositorios;
+using ProtocolComparationDotNet.GraphQL.Queries;
 
 namespace ProtocolComparationDotNet.GraphQL.Models
 {
@@ -9,6 +13,18 @@ namespace ProtocolComparationDotNet.GraphQL.Models
         {
             Name = "Venda";
             Field(x => x.Descricao).Description("Descrição");
+            //Field("produtos", x => x.Produtos.Select(y => y.Produto)).Description("Produtos");
+            Field<ListGraphType<ProdutoType>>(
+                "produtos",
+                resolve: context => new List<Produto>
+                {
+                    new Produto
+                        {
+                            Id = 1,
+                            Nome = "Cadeira"
+                        }
+                }
+            );
         }
     }
 }

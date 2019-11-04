@@ -1,0 +1,31 @@
+version: '3.4'
+
+services:
+  restql:
+    image: b2wdigital/restql-http
+    restart: always
+    environment:
+      # - launches=https://api.spacexdata.com/v3/launches
+      # - oneLaunch="https://api.spacexdata.com/v3/launches/:id"
+      - vendas=http://protocolcomparationdotnet.restapi:5000/api/venda
+    links:
+      - protocolcomparationdotnet.restapi
+    ports:
+      - "0.0.0.0:5002:9000"
+
+  protocolcomparationdotnet.restapi:
+    image: ${DOCKER_REGISTRY-}protocolcomparationdotnetrestapi
+    build:
+      context: .
+      dockerfile: ProtocolComparationDotNet.RestApi/Dockerfile
+    ports:
+      - 5000:80
+
+
+  protocolcomparationdotnet.graphql:
+    image: ${DOCKER_REGISTRY-}protocolcomparationdotnetgraphql
+    build:
+      context: .
+      dockerfile: ProtocolComparationDotNet.GraphQL/Dockerfile
+    ports:
+      - 5001:80

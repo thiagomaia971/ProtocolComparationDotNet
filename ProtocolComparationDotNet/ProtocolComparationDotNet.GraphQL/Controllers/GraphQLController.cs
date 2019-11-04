@@ -13,10 +13,12 @@ namespace ProtocolComparationDotNet.GraphQL.Controllers
     public class GraphQLController : Controller
     {
         private readonly VendaRepository _vendaRepository;
+        private readonly ProdutoRepository produtoRepository;
 
-        public GraphQLController(VendaRepository vendaRepository)
+        public GraphQLController(VendaRepository vendaRepository, ProdutoRepository produtoRepository)
         {
             _vendaRepository = vendaRepository;
+            this.produtoRepository = produtoRepository;
         }
 
         [HttpPost]
@@ -26,7 +28,7 @@ namespace ProtocolComparationDotNet.GraphQL.Controllers
 
             var schema = new Schema()
             {
-                Query = new VendaQuery(_vendaRepository)
+                Query = new VendaQuery(_vendaRepository, produtoRepository)
             };
 
             var result = await new DocumentExecuter().ExecuteAsync(_ =>

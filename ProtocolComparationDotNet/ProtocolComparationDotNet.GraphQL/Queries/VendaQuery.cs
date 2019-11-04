@@ -6,7 +6,7 @@ namespace ProtocolComparationDotNet.GraphQL.Queries
 {
     public class VendaQuery : ObjectGraphType
     {
-        public VendaQuery(VendaRepository vendaRepository)
+        public VendaQuery(VendaRepository vendaRepository, ProdutoRepository produtoRepository)
         {
 
             Field<ListGraphType<VendaType>>(
@@ -17,6 +17,11 @@ namespace ProtocolComparationDotNet.GraphQL.Queries
                     return produtos;
                 });
 
+            //Field<ListGraphType<ProdutoType>>("produtos",
+            //    resolve: context =>
+            //    {
+            //        return produtoRepository.Get();
+            //    });
         }
     }
 }
